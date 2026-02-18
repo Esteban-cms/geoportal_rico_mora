@@ -5,21 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Geoportal – Rico Mora S.A.S.</title>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.css"/>
 
 <style>
-html, body { height: 100%; margin: 0; font-family: "Segoe UI", Arial, sans-serif; }
+html, body { height: 100%; margin:0; font-family:"Segoe UI", Arial, sans-serif;}
 #sidebar {
-  position: fixed; top: 0; left: 0; width: 310px; height: 100%;
-  background: #111; padding: 15px; overflow-y: auto; color: white; z-index: 1000;
+  position: fixed; top:0; left:0; width:310px; height:100%; background:#111;
+  padding:15px; overflow-y:auto; color:white; z-index:1000;
 }
-#sidebar img { display: block; margin: auto; width: 110px; border-radius: 8px; }
-.section { background: #1b1b1b; padding: 10px; border-radius: 8px; margin-top: 12px; }
-#map-container { margin-left: 310px; height: 100%; }
-.map-buttons { position: fixed; top: 15px; right: 15px; display: flex; flex-direction: column; gap: 10px; z-index: 1500; }
-.map-btn { background: #2f2f2f; width: 44px; height: 44px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; color: white; font-size: 20px; }
-.map-btn:hover { background: #4a4a4a; }
+#sidebar img { display:block; margin:auto; width:110px; border-radius:8px; }
+.section { background:#1b1b1b; padding:10px; border-radius:8px; margin-top:12px; }
+#map-container { margin-left:310px; height:100%; }
+.map-buttons { position:fixed; top:15px; right:15px; display:flex; flex-direction:column; gap:10px; z-index:1500;}
+.map-btn { background:#2f2f2f; width:44px; height:44px; border-radius:50%; display:flex; justify-content:center; align-items:center; cursor:pointer; color:white; font-size:20px;}
+.map-btn:hover { background:#4a4a4a;}
+.legend { background:white; padding:8px; border-radius:8px; line-height:1.4; font-size:12px; }
 </style>
 </head>
 <body>
@@ -30,13 +31,12 @@ html, body { height: 100%; margin: 0; font-family: "Segoe UI", Arial, sans-serif
 
   <div class="section"><b>📍 Proyecto</b><br>Cantera Malabrigo</div>
   <div class="section"><b>🏢 Empresa</b><br>Rico Mora S.A.S.</div>
-  <div class="section">
-    <b>ℹ️ Información</b><br>
-    Visor geográfico con capas y consultas.
-  </div>
+  <div class="section"><b>ℹ️ Información</b><br>Visor geográfico con capas y consultas.</div>
 
-  <div class="section" id="feature-info">
-    <b>💡 Seleccione un elemento</b>
+  <div class="section" id="feature-info"><b>💡 Seleccione un elemento</b></div>
+
+  <div class="section" id="layer-control"><b>🗂 Capas</b><br>
+    <!-- Aquí se generarán checkboxes automáticamente -->
   </div>
 </div>
 
@@ -48,43 +48,25 @@ html, body { height: 100%; margin: 0; font-family: "Segoe UI", Arial, sans-serif
   <div class="map-btn" id="locate-btn">🧭</div>
 </div>
 
+<div id="legend" class="legend" style="position:fixed; bottom:10px; right:10px; z-index:1500;"></div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
 
 <script>
-// ✨ Crear mapa
-var map = L.map('map-container').setView([6.5, -75.5], 12);
+// 🗺 Crear mapa con centro en coordenadas dadas
+var map = L.map('map-container').setView([6.740430,-74.730643], 16); // escala 1:10708 aproximada
 
 // 🔹 Capas base
-var googleSat = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-    attribution: 'Google Satelital'
-}).addTo(map);
+var googleSat = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', { attribution:'Google Satelital'}).addTo(map);
+var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OpenStreetMap' });
 
-var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap'
-});
-
-var baseMaps = {
-    "Satélite (Google)": googleSat,
-    "Calles (OSM)": osm
-};
-
+var baseMaps = { "Satélite (Google)": googleSat, "Calles (OSM)": osm };
 var overlays = {};
 L.control.layers(baseMaps, overlays, {collapsed:false, position:'topright'}).addTo(map);
 
 // 🧭 Mi ubicación
-L.control.locate({position: 'topright'}).addTo(map);
-
-// 📍 Botones
-document.getElementById('home-btn').onclick = ()=>{
-    map.setView([6.5, -75.5], 12);
-};
-document.getElementById('coords-btn').onclick = ()=>{
-    map.once('click', e=>{
-        alert("Coordenadas:\nLat: "+e.latlng.lat.toFixed(6)+"\nLng: "+e.latlng.lng.toFixed(6));
-    });
-    alert("Cliquea en el mapa para ver coordenadas.");
-};
+L.control.locate({position:'topright'}).addTo(map);
 
 // 📁 GeoJSON archivos
 var geojsonFiles = [
@@ -99,61 +81,103 @@ var geojsonFiles = [
   "Vía.geojson"
 ];
 
-// 🎨 Colores por capa
-var layerColors = {
-  "Concesión IH8-10541.geojson": "#e41a1c",
-  "Drenaje_Sencillo.geojson": "#377eb8",
-  "Frentes de explotación del proyecto Rico Mora.geojson": "#4daf4a",
-  "Infraestructura Existente.geojson": "#984ea3",
-  "Obras_sin_permiso_cauce.geojson": "#ff7f00",
-  "Ocupación de Cauce.geojson": "#ffff33",
-  "Q. Malabrigo.geojson": "#a65628",
-  "Veredas de influencia del proyecto.geojson": "#f781bf",
-  "Vía.geojson": "#999999"
+// Colores y estilos por capa
+var layerStyles = {
+  "Concesión IH8-10541.geojson": {color:"#e41a1c", type:"polygon"},
+  "Drenaje_Sencillo.geojson": {color:"#377eb8", type:"line", weight:2},
+  "Frentes de explotación del proyecto Rico Mora.geojson": {color:"#4daf4a", type:"cross"}, // X
+  "Infraestructura Existente.geojson": {color:"#984ea3", type:"polygon"},
+  "Obras_sin_permiso_cauce.geojson": {color:"red", type:"marker"},
+  "Ocupación de Cauce.geojson": {color:"blue", type:"marker"},
+  "Q. Malabrigo.geojson": {color:"#a65628", type:"polygon"},
+  "Veredas de influencia del proyecto.geojson": {color:"#f781bf", type:"polygon"},
+  "Vía.geojson": {color:"#999999", type:"line-double", weight:3}
 };
 
-// 🧱 Cargar y estilizar GeoJSON
+// 🖌 Función para crear layers
+var layers = {};
+
 geojsonFiles.forEach(file => {
-    fetch(file)
-      .then(res => res.json())
-      .then(data => {
-        var color = layerColors[file] || "#000000";
+  fetch(file).then(r=>r.json()).then(data=>{
+    let style = layerStyles[file] || {color:"#000000", type:"polygon"};
+    let layer;
 
-        var layer = L.geoJSON(data, {
-          // 👇 si es punto
-          pointToLayer: function(feature, latlng) {
-            return L.circleMarker(latlng, {
-              radius: 7,
-              fillColor: color,
-              color: "#000",
-              weight: 1,
-              fillOpacity: 0.8
-            });
-          },
-          // 👇 estilo para líneas y polígonos
-          style: function(feature){
-            return {
-              color: color,
-              weight: 3,
-              fillColor: color,
-              fillOpacity: 0.4
-            };
-          },
-          onEachFeature: function(feature, layer) {
-            layer.on('click', function() {
-              let info = "<b>" + (feature.properties.nombre || "Elemento") + "</b><br>";
-              for(let key in feature.properties) {
-                info += "<b>" + key + ":</b> " + feature.properties[key] + "<br>";
-              }
-              document.getElementById('feature-info').innerHTML = info;
-            });
-          }
-        }).addTo(map);
+    // Según tipo
+    if(style.type==="marker"){
+      layer = L.geoJSON(data, {
+        pointToLayer: function(f, latlng){ return L.marker(latlng, {icon: L.icon({iconUrl:'', iconSize:[12,12]})}); },
+        onEachFeature: onEachFeature
+      });
+    } else if(style.type==="cross"){ // X para frentes
+      layer = L.geoJSON(data, {
+        pointToLayer: function(f, latlng){
+          return L.divIcon({
+            className:'cross-marker',
+            html:'<div style="color:'+style.color+'; font-size:18px;">&#10006;</div>',
+            iconSize:[18,18]
+          }).createIcon(latlng);
+        },
+        onEachFeature: onEachFeature
+      });
+    } else if(style.type==="line-double"){
+      layer = L.geoJSON(data, {
+        style: function(f){ return {color:style.color, weight:style.weight||3}; },
+        onEachFeature: onEachFeature
+      });
+    } else if(style.type==="line"){
+      layer = L.geoJSON(data, {
+        style: function(f){ return {color:style.color, weight:style.weight||2}; },
+        onEachFeature: onEachFeature
+      });
+    } else { // polygon
+      layer = L.geoJSON(data, {
+        style: function(f){ return {color:style.color, fillColor:style.color, fillOpacity:0.4}; },
+        onEachFeature: onEachFeature
+      });
+    }
 
-        overlays[file] = layer; // agrega al control
-      })
-      .catch(err => console.log("Error cargando "+file+": "+err));
+    layer.addTo(map);
+    overlays[file] = layer;
+    layers[file] = layer;
+
+    // 🗂 Crear checkboxes en sidebar
+    let lc = document.createElement('div');
+    lc.innerHTML = `<input type="checkbox" id="${file}" checked> ${file}`;
+    lc.querySelector('input').addEventListener('change', e=>{
+      if(e.target.checked) map.addLayer(layers[file]);
+      else map.removeLayer(layers[file]);
+    });
+    document.getElementById('layer-control').appendChild(lc);
+  }).catch(err=>console.log("Error "+file, err));
 });
+
+// 🎯 Función para mostrar info
+function onEachFeature(feature, layer){
+  layer.on('click', function(){
+    let info = "<b>"+(feature.properties.nombre||"Elemento")+"</b><br>";
+    for(let key in feature.properties){ info += "<b>"+key+":</b> "+feature.properties[key]+"<br>"; }
+    document.getElementById('feature-info').innerHTML = info;
+  });
+}
+
+// 🏠 Botones
+document.getElementById('home-btn').onclick=()=>{ map.setView([6.740430,-74.730643],16); };
+document.getElementById('coords-btn').onclick=()=>{
+  map.once('click', e=>{ alert("Coordenadas:\nLat:"+e.latlng.lat+"\nLng:"+e.latlng.lng); });
+  alert("Cliquea en el mapa para ver coordenadas.");
+};
+
+// ⚪ Leyenda
+var legend = document.getElementById('legend');
+legend.innerHTML = `
+<b>Leyenda</b><br>
+Frentes de explotación: X verde<br>
+Ocupación de Cauce: marcador azul<br>
+Obras sin permiso: marcador rojo<br>
+Fuentes hídricas: línea azul delgada<br>
+Vías: doble línea gris<br>
+Otros polígonos: color de capa
+`;
 </script>
 
 </body>
