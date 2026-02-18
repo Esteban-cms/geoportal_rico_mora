@@ -5,162 +5,88 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Geoportal – Rico Mora S.A.S.</title>
 
-<!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
 
 <style>
-html, body {
-  height: 100%;
-  margin: 0;
-  font-family: "Segoe UI", Arial, sans-serif;
-  background: #0f0f0f;
-  color: #ffffff;
-}
-
-/* SIDEBAR */
+html, body { height: 100%; margin: 0; font-family: "Segoe UI", Arial, sans-serif; }
 #sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 310px;
-  height: 100%;
-  background: #111;
-  padding: 15px;
-  box-shadow: 3px 0 10px rgba(0,0,0,0.4);
-  overflow-y: auto;
-  z-index: 1000;
+  position: fixed; top: 0; left: 0; width: 310px; height: 100%;
+  background: #111; padding: 15px; overflow-y: auto; color: white; z-index: 1000;
 }
-
-#sidebar img {
-  display: block;
-  margin: 10px auto;
-  width: 110px;
-  border-radius: 8px;
-}
-
-#sidebar h2 {
-  text-align: center;
-  color: #00e676;
-  margin-bottom: 10px;
-}
-
-#sidebar p {
-  font-size: 14px;
-  line-height: 1.5;
-  color: #ddd;
-}
-
-.section {
-  background: #1b1b1b;
-  border-radius: 10px;
-  padding: 10px;
-  margin-top: 12px;
-  font-size: 13px;
-}
-
-/* MAPA */
-#map-container {
-  margin-left: 310px;
-  height: 100%;
-}
-
-/* BOTONES FLOTANTES */
-.map-buttons {
-  position: fixed;
-  top: 15px;
-  right: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 1500;
-}
-
-.map-btn {
-  background: #2f2f2f;
-  border: none;
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-}
-
-.map-btn:hover {
-  background: #4a4a4a;
-}
+#sidebar img { display: block; margin: auto; width: 110px; border-radius: 8px; }
+.section { background: #1b1b1b; padding: 10px; border-radius: 8px; margin-top: 12px; }
+#map-container { margin-left: 310px; height: 100%; }
+.map-buttons { position: fixed; top: 15px; right: 15px; display: flex; flex-direction: column; gap: 10px; z-index: 1500; }
+.map-btn { background: #2f2f2f; width: 44px; height: 44px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; color: white; font-size: 20px; }
+.map-btn:hover { background: #4a4a4a; }
 </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
 <div id="sidebar">
-  <img src="logo.png.png" alt="Rico Mora S.A.S.">
+  <img src="logo.png.png" alt="Rico Mora">
   <h2>Geoportal Corporativo</h2>
 
-  <div class="section">
-    <b>📍 Proyecto</b><br>
-    Cantera Malabrigo
-  </div>
-
-  <div class="section">
-    <b>🏢 Empresa</b><br>
-    Rico Mora S.A.S.
-  </div>
-
+  <div class="section"><b>📍 Proyecto</b><br>Cantera Malabrigo</div>
+  <div class="section"><b>🏢 Empresa</b><br>Rico Mora S.A.S.</div>
   <div class="section">
     <b>ℹ️ Información</b><br>
-    Visor geográfico generado a partir de QGIS Web.<br>
-    Las capas y consultas se gestionan directamente desde el mapa.
+    Visor geográfico con capas y consultas.
   </div>
 
   <div class="section" id="feature-info">
-    <b>💡 Seleccione un elemento en el mapa</b>
+    <b>💡 Seleccione un elemento</b>
   </div>
 </div>
 
-<!-- MAPA -->
 <div id="map-container"></div>
 
-<!-- BOTONES FLOTANTES -->
 <div class="map-buttons">
-  <button class="map-btn" id="home-btn" title="Inicio">🏠</button>
-  <button class="map-btn" id="coords-btn" title="Coordenadas">📍</button>
-  <button class="map-btn" id="locate-btn" title="Mi ubicación">🧭</button>
+  <div class="map-btn" id="home-btn">🏠</div>
+  <div class="map-btn" id="coords-btn">📍</div>
+  <div class="map-btn" id="locate-btn">🧭</div>
 </div>
 
-<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
 
 <script>
-// Crear mapa
+// ✨ Crear mapa
 var map = L.map('map-container').setView([6.5, -75.5], 12);
 
-// Capas base
-var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap'
+// 🔹 Capas base
+var googleSat = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+    attribution: 'Google Satelital'
 }).addTo(map);
 
-var esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    attribution: '© Esri'
+var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
 });
 
 var baseMaps = {
-    "Calles (OSM)": osm,
-    "Satelital (Esri)": esriSat
+    "Satélite (Google)": googleSat,
+    "Calles (OSM)": osm
 };
 
-// Grupo de capas para control
-var overlayMaps = {};
+var overlays = {};
+L.control.layers(baseMaps, overlays, {collapsed:false, position:'topright'}).addTo(map);
 
-// Agregar control de capas
-L.control.layers(baseMaps, overlayMaps, {collapsed:false, position: 'topright'}).addTo(map);
+// 🧭 Mi ubicación
+L.control.locate({position: 'topright'}).addTo(map);
 
-// Lista de GeoJSON
+// 📍 Botones
+document.getElementById('home-btn').onclick = ()=>{
+    map.setView([6.5, -75.5], 12);
+};
+document.getElementById('coords-btn').onclick = ()=>{
+    map.once('click', e=>{
+        alert("Coordenadas:\nLat: "+e.latlng.lat.toFixed(6)+"\nLng: "+e.latlng.lng.toFixed(6));
+    });
+    alert("Cliquea en el mapa para ver coordenadas.");
+};
+
+// 📁 GeoJSON archivos
 var geojsonFiles = [
   "Concesión IH8-10541.geojson",
   "Drenaje_Sencillo.geojson",
@@ -173,48 +99,61 @@ var geojsonFiles = [
   "Vía.geojson"
 ];
 
-// Función para normalizar nombres
-function normalizeName(name){
-    return name.replace(/\s+/g,'_').replace(/\./g,'_');
-}
+// 🎨 Colores por capa
+var layerColors = {
+  "Concesión IH8-10541.geojson": "#e41a1c",
+  "Drenaje_Sencillo.geojson": "#377eb8",
+  "Frentes de explotación del proyecto Rico Mora.geojson": "#4daf4a",
+  "Infraestructura Existente.geojson": "#984ea3",
+  "Obras_sin_permiso_cauce.geojson": "#ff7f00",
+  "Ocupación de Cauce.geojson": "#ffff33",
+  "Q. Malabrigo.geojson": "#a65628",
+  "Veredas de influencia del proyecto.geojson": "#f781bf",
+  "Vía.geojson": "#999999"
+};
 
-// Cargar capas GeoJSON y agregarlas al control
-geojsonFiles.forEach(function(file){
-    var layerName = normalizeName(file);
+// 🧱 Cargar y estilizar GeoJSON
+geojsonFiles.forEach(file => {
     fetch(file)
-      .then(response => response.json())
+      .then(res => res.json())
       .then(data => {
-          var layer = L.geoJSON(data, {
-              onEachFeature: function(feature, layer) {
-                  layer.on('click', function() {
-                      let info = "<b>" + (feature.properties.nombre || layerName) + "</b><br>";
-                      for(const key in feature.properties){
-                          info += "<b>"+key+":</b> "+feature.properties[key]+"<br>";
-                      }
-                      document.getElementById('feature-info').innerHTML = info;
-                  });
+        var color = layerColors[file] || "#000000";
+
+        var layer = L.geoJSON(data, {
+          // 👇 si es punto
+          pointToLayer: function(feature, latlng) {
+            return L.circleMarker(latlng, {
+              radius: 7,
+              fillColor: color,
+              color: "#000",
+              weight: 1,
+              fillOpacity: 0.8
+            });
+          },
+          // 👇 estilo para líneas y polígonos
+          style: function(feature){
+            return {
+              color: color,
+              weight: 3,
+              fillColor: color,
+              fillOpacity: 0.4
+            };
+          },
+          onEachFeature: function(feature, layer) {
+            layer.on('click', function() {
+              let info = "<b>" + (feature.properties.nombre || "Elemento") + "</b><br>";
+              for(let key in feature.properties) {
+                info += "<b>" + key + ":</b> " + feature.properties[key] + "<br>";
               }
-          }).addTo(map);
-          overlayMaps[layerName] = layer;  // añadir al control de capas
+              document.getElementById('feature-info').innerHTML = info;
+            });
+          }
+        }).addTo(map);
+
+        overlays[file] = layer; // agrega al control
       })
       .catch(err => console.log("Error cargando "+file+": "+err));
 });
-
-// BOTONES
-document.getElementById('home-btn').onclick = function(){
-    map.setView([6.5,-75.5],12);
-};
-
-document.getElementById('coords-btn').onclick = function(){
-    map.once('click', function(e){
-        alert("Coordenadas:\nLat: "+e.latlng.lat.toFixed(6)+"\nLng: "+e.latlng.lng.toFixed(6));
-    });
-    alert("Haga clic en el mapa para ver las coordenadas");
-};
-
-// Ubicación
-L.control.locate({position: 'topright'}).addTo(map);
-
 </script>
 
 </body>
