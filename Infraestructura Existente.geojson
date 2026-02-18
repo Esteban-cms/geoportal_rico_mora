@@ -1,0 +1,30 @@
+{
+"type": "FeatureCollection",
+"name": "Infraestructura Existente",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "Infraestru": "Área administrativa", "Este(x)": 4809354, "Norte(y)": 2303149 }, "geometry": { "type": "Point", "coordinates": [ -74.725569163342612, 6.740487018224364 ] } },
+{ "type": "Feature", "properties": { "Infraestru": "Caseta de vigilancia", "Este(x)": 4809383, "Norte(y)": 2303306 }, "geometry": { "type": "Point", "coordinates": [ -74.7253087523912, 6.741906938570929 ] } },
+{ "type": "Feature", "properties": { "Infraestru": "Tanque de almacenamiento de agua para uso doméstico", "Este(x)": 4809398, "Norte(y)": 2303043 }, "geometry": { "type": "Point", "coordinates": [ -74.725169925542588, 6.739529108834397 ] } },
+{ "type": "Feature", "properties": { "Infraestru": "Acopio de residuos no peligrosos", "Este(x)": 4809365, "Norte(y)": 2303022 }, "geometry": { "type": "Point", "coordinates": [ -74.725468147236938, 6.739338833797496 ] } },
+{ "type": "Feature", "properties": { "Infraestru": "Sistema séptico", "Este(x)": 4809371, "Norte(y)": 2303007 }, "geometry": { "type": "Point", "coordinates": [ -74.725413699254162, 6.739203277862945 ] } },
+{ "type": "Feature", "properties": { "Infraestru": "Vertimiento proyectado ARD", "Este(x)": 4809349, "Norte(y)": 2302979 }, "geometry": { "type": "Point", "coordinates": [ -74.72560330081113, 6.738949853708448 ] } },
+{ "type": "Feature", "properties": { "Infraestru": "Sistema de tratamiento para las ARnD", "Este(x)": 4809339, "Norte(y)": 2303028 }, "geometry": { "type": "Point", "coordinates": [ -74.725703380346971, 6.739392772901042 ] } },
+{ "type": "Feature", "properties": { "Infraestru": "Almacenamiento de combustibles", "Este(x)": 4809383, "Norte(y)": 2303053 }, "geometry": { "type": "Point", "coordinates": [ -74.725305715461701, 6.739619347510938 ] } },
+{ "type": "Feature", "properties": { "Infraestru": "Almacenamiento de cobertura vegetal 1", "Este(x)": 4808118, "Norte(y)": 2303240 }, "geometry": { "type": "Point", "coordinates": [ -74.736751714745935, 6.741272614527509 ] } },
+{ "type": "Feature", "properties": { "Infraestru": "Almacenamiento de cobertura vegetal 2", "Este(x)": 4808424, "Norte(y)": 2303355 }, "geometry": { "type": "Point", "coordinates": [ -74.733991598563037, 6.742319583712916 ] } },
+{ "type": "Feature", "properties": { "Infraestru": "Patio de acopio material clasificado 1", "Este(x)": 4809326, "Norte(y)": 2303069 }, "geometry": { "type": "Point", "coordinates": [ -74.72582145333908, 6.739763333141858 ] } },
+{ "type": "Feature", "properties": { "Infraestru": "Patio de acopio material clasificado 2", "Este(x)": 4809326, "Norte(y)": 2303061 }, "geometry": { "type": "Point", "coordinates": [ -74.725821357248378, 6.739690998251008 ] } },
+{ "type": "Feature", "properties": { "Infraestru": "Patio de acopio material clasificado 3", "Este(x)": 4809330, "Norte(y)": 2303052 }, "geometry": { "type": "Point", "coordinates": [ -74.7257850705046, 6.739609669526827 ] } },
+{ "type": "Feature", "properties": { "Infraestru": "Patio de acopio material clasificado 4", "Este(x)": 4809340, "Norte(y)": 2303050 }, "geometry": { "type": "Point", "coordinates": [ -74.725694599878452, 6.73959170586256 ] } },
+{ "type": "Feature", "properties": { "Infraestru": "Patio de acopio material clasificado 5", "Este(x)": 4809347, "Norte(y)": 2303048 }, "geometry": { "type": "Point", "coordinates": [ -74.725631263238668, 6.739573706170153 ] } },
+{ "type": "Feature", "properties": { "Infraestru": "Portería", "Este(x)": 4809377, "Norte(y)": 2304250 }, "geometry": { "type": "Point", "coordinates": [ -74.725392452065776, 6.75044235815764 ] } },
+{ "type": "Feature", "properties": { "Infraestru": "Unidades de servicio (baños) (1 unidad)", "Este(x)": 4809400, "Norte(y)": 2303040 }, "geometry": { "type": "Point", "coordinates": [ -74.725151800226101, 6.739502007236556 ] } },
+{ "type": "Feature", "properties": { "Infraestru": "Tanque séptico", "Este(x)": 4809366, "Norte(y)": 2303042 }, "geometry": { "type": "Point", "coordinates": [ -74.725459342662447, 6.739519683040135 ] } },
+{ "type": "Feature", "properties": { "Infraestru": "Planta de beneficio", "Este(x)": 4809366, "Norte(y)": 2303042 }, "geometry": { "type": "Point", "coordinates": [ -74.725459342662447, 6.739519683040135 ] } },
+{ "type": "Feature", "properties": { "Infraestru": "Área de mantenimiento y reparación de equipos", "Este(x)": 4809378, "Norte(y)": 2303055 }, "geometry": { "type": "Point", "coordinates": [ -74.72535096277548, 6.739637371243941 ] } },
+{ "type": "Feature", "properties": { "Infraestru": "Cacaotera", "Este(x)": 4809353, "Norte(y)": 2302822 }, "geometry": { "type": "Point", "coordinates": [ -74.725565237597507, 6.737530329324766 ] } },
+{ "type": "Feature", "properties": { "Infraestru": "Vivero", "Este(x)": 4809353, "Norte(y)": 2302822 }, "geometry": { "type": "Point", "coordinates": [ -74.725565237597507, 6.737530329324766 ] } },
+{ "type": "Feature", "properties": { "Infraestru": "Comedor", "Este(x)": 4809400, "Norte(y)": 2303031 }, "geometry": { "type": "Point", "coordinates": [ -74.725151692240019, 6.739420630472641 ] } }
+]
+}
