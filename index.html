@@ -92,12 +92,6 @@ html, body {
 .map-btn:hover {
   background: #4a4a4a;
 }
-
-.map-btn svg {
-  width: 22px;
-  height: 22px;
-  fill: white;
-}
 </style>
 </head>
 <body>
@@ -146,15 +140,25 @@ html, body {
 // Crear mapa
 var map = L.map('map-container').setView([6.5, -75.5], 12);
 
-// Capa base
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap',
+// Capas base
+var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
 }).addTo(map);
 
-// Función para normalizar nombres de archivos (sin espacios)
-function normalizeName(name) {
-    return name.replace(/\s+/g, '_').replace(/\./g, '_');
-}
+var esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: '© Esri'
+});
+
+var baseMaps = {
+    "Calles (OSM)": osm,
+    "Satelital (Esri)": esriSat
+};
+
+// Grupo de capas para control
+var overlayMaps = {};
+
+// Agregar control de capas
+L.control.layers(baseMaps, overlayMaps, {collapsed:false, position: 'topright'}).addTo(map);
 
 // Lista de GeoJSON
 var geojsonFiles = [
@@ -169,41 +173,48 @@ var geojsonFiles = [
   "Vía.geojson"
 ];
 
-// Cargar todas las capas automáticamente
+// Función para normalizar nombres
+function normalizeName(name){
+    return name.replace(/\s+/g,'_').replace(/\./g,'_');
+}
+
+// Cargar capas GeoJSON y agregarlas al control
 geojsonFiles.forEach(function(file){
-  var layerName = normalizeName(file);
-  fetch("data/" + file)
-    .then(response => response.json())
-    .then(data => {
-      L.geoJSON(data, {
-        onEachFeature: function(feature, layer) {
-          layer.on('click', function() {
-            let info = "<b>" + (feature.properties.nombre || layerName) + "</b><br>";
-            for (const key in feature.properties) {
-                info += "<b>" + key + ":</b> " + feature.properties[key] + "<br>";
-            }
-            document.getElementById('feature-info').innerHTML = info;
-          });
-        }
-      }).addTo(map);
-    })
-    .catch(err => console.log("Error cargando " + file + ": " + err));
+    var layerName = normalizeName(file);
+    fetch(file)
+      .then(response => response.json())
+      .then(data => {
+          var layer = L.geoJSON(data, {
+              onEachFeature: function(feature, layer) {
+                  layer.on('click', function() {
+                      let info = "<b>" + (feature.properties.nombre || layerName) + "</b><br>";
+                      for(const key in feature.properties){
+                          info += "<b>"+key+":</b> "+feature.properties[key]+"<br>";
+                      }
+                      document.getElementById('feature-info').innerHTML = info;
+                  });
+              }
+          }).addTo(map);
+          overlayMaps[layerName] = layer;  // añadir al control de capas
+      })
+      .catch(err => console.log("Error cargando "+file+": "+err));
 });
 
 // BOTONES
-document.getElementById('home-btn').onclick = function() {
-    map.setView([6.5, -75.5], 12);
+document.getElementById('home-btn').onclick = function(){
+    map.setView([6.5,-75.5],12);
 };
 
-document.getElementById('coords-btn').onclick = function() {
-    map.once('click', function(e) {
-        alert("Coordenadas:\nLat: " + e.latlng.lat.toFixed(6) + "\nLng: " + e.latlng.lng.toFixed(6));
+document.getElementById('coords-btn').onclick = function(){
+    map.once('click', function(e){
+        alert("Coordenadas:\nLat: "+e.latlng.lat.toFixed(6)+"\nLng: "+e.latlng.lng.toFixed(6));
     });
     alert("Haga clic en el mapa para ver las coordenadas");
 };
 
 // Ubicación
 L.control.locate({position: 'topright'}).addTo(map);
+
 </script>
 
 </body>
