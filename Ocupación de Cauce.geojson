@@ -1,0 +1,18 @@
+{
+"type": "FeatureCollection",
+"name": "Ocupación de Cauce",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "ID": "QMA1", "Fuente": "Quebrada Malabrigo", "Infraestru": "Vía existente a mejorar", "Tipo/dimen": "Pontón para cruce vehicular", "Este": 928201, "Norte": 1237157 }, "geometry": { "type": "Point", "coordinates": [ -74.72693470488197, 6.740331492061795 ] } },
+{ "type": "Feature", "properties": { "ID": "QMA2", "Fuente": "Quebrada Malabrigo", "Infraestru": "Vía existente a mejorar", "Tipo/dimen": "Pontón para cruce vehicular", "Este": 928189, "Norte": 1237394 }, "geometry": { "type": "Point", "coordinates": [ -74.727046093719522, 6.742474268171106 ] } },
+{ "type": "Feature", "properties": { "ID": "QMA3", "Fuente": "Quebrada Malabrigo", "Infraestru": "Vía existente a mejorar", "Tipo/dimen": "Pontón para cruce vehicular", "Este": 927918, "Norte": 1237319 }, "geometry": { "type": "Point", "coordinates": [ -74.729496303674694, 6.74179286144658 ] } },
+{ "type": "Feature", "properties": { "ID": "QMA4", "Fuente": "Quebrada Malabrigo", "Infraestru": "Vía existente a mejorar", "Tipo/dimen": "Pontón para cruce vehicular", "Este": 927885, "Norte": 1237271 }, "geometry": { "type": "Point", "coordinates": [ -74.72979419834806, 6.741358453767944 ] } },
+{ "type": "Feature", "properties": { "ID": "QMA5", "Fuente": "Quebrada Malabrigo", "Infraestru": "Vía existente a mejorar", "Tipo/dimen": "Pontón para cruce vehicular", "Este": 927779, "Norte": 1237280 }, "geometry": { "type": "Point", "coordinates": [ -74.730753043918369, 6.741438548578143 ] } },
+{ "type": "Feature", "properties": { "ID": "QMA6", "Fuente": "Quebrada Malabrigo", "Infraestru": "Vía existente a mejorar", "Tipo/dimen": "Pontón para cruce vehicular", "Este": 927439, "Norte": 1237289 }, "geometry": { "type": "Point", "coordinates": [ -74.733828345564177, 6.741515800827017 ] } },
+{ "type": "Feature", "properties": { "ID": "QMA7", "Fuente": "Quebrada Malabrigo", "Infraestru": "Vía existente a mejorar", "Tipo/dimen": "Pontón para cruce vehicular", "Este": 927334, "Norte": 1237298 }, "geometry": { "type": "Point", "coordinates": [ -74.734778146661199, 6.741595899796079 ] } },
+{ "type": "Feature", "properties": { "ID": "QMA8", "Fuente": "Quebrada Malabrigo", "Infraestru": "Vía existente a mejorar", "Tipo/dimen": "Pontón para cruce vehicular", "Este": 927116, "Norte": 1237386 }, "geometry": { "type": "Point", "coordinates": [ -74.73675096196969, 6.742388923242117 ] } },
+{ "type": "Feature", "properties": { "ID": "QMA9", "Fuente": "Quebrada Malabrigo", "Infraestru": "Vía existente a mejorar", "Tipo/dimen": "Pontón para cruce vehicular", "Este": 927062, "Norte": 1237516 }, "geometry": { "type": "Point", "coordinates": [ -74.737240965083558, 6.743563702525183 ] } },
+{ "type": "Feature", "properties": { "ID": "MDE", "Fuente": "Corriente Margen Derecha", "Infraestru": "Vía existente a mejorar", "Tipo/dimen": "Alcantarilla para cruce vehicular", "Este": 926937, "Norte": 1237159 }, "geometry": { "type": "Point", "coordinates": [ -74.738367181622763, 6.740334236880113 ] } },
+{ "type": "Feature", "properties": { "ID": "MIZ", "Fuente": "Corriente Margen Izquierda", "Infraestru": "Vía existente a mejorar", "Tipo/dimen": "Box Culvert para cruce vehicular", "Este": 927942, "Norte": 1237390 }, "geometry": { "type": "Point", "coordinates": [ -74.729280088660943, 6.742435122954161 ] } }
+]
+}
