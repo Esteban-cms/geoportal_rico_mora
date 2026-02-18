@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -82,7 +82,7 @@ var layerStyles = {
   "Concesión IH8-10541.geojson": {color:"#e41a1c", type:"polygon"},
   "Drenaje_Sencillo.geojson": {color:"#377eb8", type:"line", weight:2, defaultVisible:false},
   "Frentes de explotación del proyecto Rico Mora.geojson": {color:"#4daf4a", type:"cross"},
-  "Infraestructura Existente.geojson": {color:"#ffff00", type:"marker", radius:4, innerColor:"#000"},
+  "Infraestructura Existente.geojson": {color:"#ffff00", type:"marker", radius:3, innerColor:"#000"},
   "Obras_sin_permiso_cauce.geojson": {color:"red", type:"marker"},
   "Ocupación de Cauce.geojson": {color:"blue", type:"marker"},
   "Q. Malabrigo.geojson": {color:"#1f78b4", type:"polygon"},
@@ -92,18 +92,18 @@ var layerStyles = {
 
 var layers = {};
 
-function onEachFeature(feature, layer){
-  layer.on('click', function(){
-    let info = "<b>"+(feature.properties.nombre||"Elemento")+"</b><br>";
-    for(let key in feature.properties){ info += "<b>"+key+":</b> "+feature.properties[key]+"<br>"; }
-    document.getElementById('feature-info').innerHTML = info;
-  });
-}
-
-// Crear capa según tipo
 function createLayer(file, data){
   let style = layerStyles[file] || {color:"#000", type:"polygon"};
   let layer;
+
+  function bindPopupFeature(feature, layer){
+    layer.on('click', function(e){
+      let content = "<div style='font-size:12px;'><b>"+(feature.properties.nombre||"Elemento")+"</b><br>";
+      for(let key in feature.properties){ content += "<b>"+key+":</b> "+feature.properties[key]+"<br>"; }
+      content += "</div>";
+      L.popup({maxWidth:250}).setLatLng(e.latlng).setContent(content).openOn(map);
+    });
+  }
 
   if(style.type==="cross"){
     layer = L.geoJSON(data,{
@@ -112,12 +112,13 @@ function createLayer(file, data){
           icon:L.divIcon({className:'cross-marker', html:'<div style="color:'+style.color+'; font-size:18px;">&#10006;</div>', iconSize:[18,18]})
         });
       },
-      onEachFeature:onEachFeature
+      onEachFeature: bindPopupFeature
     });
   } else if(style.type==="marker"){
     let iconUrl = "";
-    if(file.includes("Ocupación")) iconUrl = "https://cdn-icons-png.flaticon.com/512/684/684908.png";
-    else if(file.includes("Obras_sin_permiso")) iconUrl = "https://cdn-icons-png.flaticon.com/512/484/484167.png";
+    if(file==="Ocupación de Cauce.geojson") iconUrl = "https://cdn-icons-png.flaticon.com/512/684/684908.png"; // azul
+    else if(file==="Obras_sin_permiso_cauce.geojson") iconUrl = "https://cdn-icons-png.flaticon.com/512/484/484167.png"; // rojo
+
     layer = L.geoJSON(data,{
       pointToLayer: function(f, latlng){
         if(file==="Infraestructura Existente.geojson"){
@@ -129,35 +130,34 @@ function createLayer(file, data){
             weight:1
           });
         } else {
-          return L.marker(latlng,{icon:L.icon({iconUrl:iconUrl, iconSize:[20,20]})});
+          return L.marker(latlng,{icon:L.icon({iconUrl:iconUrl,iconSize:[20,20]})});
         }
       },
-      onEachFeature:onEachFeature
+      onEachFeature: bindPopupFeature
     });
   } else if(style.type==="line-double"){
-    let l1 = L.geoJSON(data,{style:{color:style.color, weight:style.weight||3}, onEachFeature:onEachFeature});
+    let l1 = L.geoJSON(data,{style:{color:style.color, weight:style.weight||3}});
     let l2 = L.geoJSON(data,{style:{color:"#fff", weight:(style.weight||3)-1}});
     layer = L.layerGroup([l1,l2]);
-  } else if(style.type==="line"){
-    layer = L.geoJSON(data,{style:{color:style.color, weight:style.weight||2}, onEachFeature:onEachFeature});
-  } else {
-    layer = L.geoJSON(data,{style:{color:style.color, fillColor:style.color, fillOpacity:style.opacity||0.4}, onEachFeature:onEachFeature});
+    layer.eachLayer(function(subLayer){
+      if(subLayer.feature) bindPopupFeature(subLayer.feature, subLayer);
+    });
+  } else if(style.type==="line" || style.type==="polygon"){
+    layer = L.geoJSON(data,{style: style, onEachFeature: bindPopupFeature});
   }
 
   return layer;
 }
 
-// Cargar capas GeoJSON
+// Cargar GeoJSON
 geojsonFiles.forEach(file=>{
   fetch(file).then(r=>r.json()).then(data=>{
     let layer = createLayer(file,data);
 
-    // Veredas y Drenaje desactivados por defecto
     if(layerStyles[file].defaultVisible!==false) layer.addTo(map);
 
     layers[file] = layer;
 
-    // Checkboxes en sidebar
     let lc = document.createElement('div');
     lc.innerHTML = `<input type="checkbox" id="${file}" ${layerStyles[file].defaultVisible!==false ? 'checked':''}> ${file}`;
     lc.querySelector('input').addEventListener('change', e=>{
