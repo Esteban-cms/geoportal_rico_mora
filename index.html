@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.css"/>
 
 <style>
-html, body { height: 100%; margin:0; font-family:"Segoe UI", Arial, sans-serif;}
+html, body { height:100%; margin:0; font-family:"Segoe UI", Arial, sans-serif; }
 #sidebar {
   position: fixed; top:0; left:0; width:310px; height:100%; background:#111;
   padding:15px; overflow-y:auto; color:white; z-index:1000;
@@ -21,6 +21,7 @@ html, body { height: 100%; margin:0; font-family:"Segoe UI", Arial, sans-serif;}
 .map-btn { background:#2f2f2f; width:44px; height:44px; border-radius:50%; display:flex; justify-content:center; align-items:center; cursor:pointer; color:white; font-size:20px;}
 .map-btn:hover { background:#4a4a4a;}
 .legend { background:white; padding:8px; border-radius:8px; line-height:1.4; font-size:12px; }
+.cross-marker { text-align:center; }
 </style>
 </head>
 <body>
@@ -36,7 +37,7 @@ html, body { height: 100%; margin:0; font-family:"Segoe UI", Arial, sans-serif;}
   <div class="section" id="feature-info"><b>💡 Seleccione un elemento</b></div>
 
   <div class="section" id="layer-control"><b>🗂 Capas</b><br>
-    <!-- Aquí se generarán checkboxes automáticamente -->
+    <!-- Checkboxes generados automáticamente -->
   </div>
 </div>
 
@@ -54,11 +55,11 @@ html, body { height: 100%; margin:0; font-family:"Segoe UI", Arial, sans-serif;}
 <script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
 
 <script>
-// 🗺 Crear mapa con centro en coordenadas dadas
-var map = L.map('map-container').setView([6.740430,-74.730643], 16); // escala 1:10708 aproximada
+// 🌎 Crear mapa centrado en coordenadas y zoom
+var map = L.map('map-container').setView([6.740430,-74.730643],16);
 
 // 🔹 Capas base
-var googleSat = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', { attribution:'Google Satelital'}).addTo(map);
+var googleSat = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', { attribution:'Google Satelital' }).addTo(map);
 var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OpenStreetMap' });
 
 var baseMaps = { "Satélite (Google)": googleSat, "Calles (OSM)": osm };
@@ -68,7 +69,7 @@ L.control.layers(baseMaps, overlays, {collapsed:false, position:'topright'}).add
 // 🧭 Mi ubicación
 L.control.locate({position:'topright'}).addTo(map);
 
-// 📁 GeoJSON archivos
+// 📁 Archivos GeoJSON
 var geojsonFiles = [
   "Concesión IH8-10541.geojson",
   "Drenaje_Sencillo.geojson",
@@ -81,11 +82,11 @@ var geojsonFiles = [
   "Vía.geojson"
 ];
 
-// Colores y estilos por capa
+// Estilos y tipos de capa
 var layerStyles = {
   "Concesión IH8-10541.geojson": {color:"#e41a1c", type:"polygon"},
   "Drenaje_Sencillo.geojson": {color:"#377eb8", type:"line", weight:2},
-  "Frentes de explotación del proyecto Rico Mora.geojson": {color:"#4daf4a", type:"cross"}, // X
+  "Frentes de explotación del proyecto Rico Mora.geojson": {color:"#4daf4a", type:"cross"},
   "Infraestructura Existente.geojson": {color:"#984ea3", type:"polygon"},
   "Obras_sin_permiso_cauce.geojson": {color:"red", type:"marker"},
   "Ocupación de Cauce.geojson": {color:"blue", type:"marker"},
@@ -94,53 +95,63 @@ var layerStyles = {
   "Vía.geojson": {color:"#999999", type:"line-double", weight:3}
 };
 
-// 🖌 Función para crear layers
 var layers = {};
 
-geojsonFiles.forEach(file => {
-  fetch(file).then(r=>r.json()).then(data=>{
-    let style = layerStyles[file] || {color:"#000000", type:"polygon"};
-    let layer;
+// 🎨 Función de info
+function onEachFeature(feature, layer){
+  layer.on('click', function(){
+    let info = "<b>"+(feature.properties.nombre||"Elemento")+"</b><br>";
+    for(let key in feature.properties){
+      info += "<b>"+key+":</b> "+feature.properties[key]+"<br>";
+    }
+    document.getElementById('feature-info').innerHTML = info;
+  });
+}
 
-    // Según tipo
-    if(style.type==="marker"){
-      layer = L.geoJSON(data, {
-        pointToLayer: function(f, latlng){ return L.marker(latlng, {icon: L.icon({iconUrl:'', iconSize:[12,12]})}); },
-        onEachFeature: onEachFeature
-      });
-    } else if(style.type==="cross"){ // X para frentes
-      layer = L.geoJSON(data, {
-        pointToLayer: function(f, latlng){
-          return L.divIcon({
+// 🔹 Crear capa según tipo
+function createLayer(file, data){
+  let style = layerStyles[file] || {color:"#000", type:"polygon"};
+  let layer;
+
+  if(style.type==="cross"){ // X verde
+    layer = L.geoJSON(data,{
+      pointToLayer: function(f, latlng){
+        return L.marker(latlng, {
+          icon: L.divIcon({
             className:'cross-marker',
             html:'<div style="color:'+style.color+'; font-size:18px;">&#10006;</div>',
             iconSize:[18,18]
-          }).createIcon(latlng);
-        },
-        onEachFeature: onEachFeature
-      });
-    } else if(style.type==="line-double"){
-      layer = L.geoJSON(data, {
-        style: function(f){ return {color:style.color, weight:style.weight||3}; },
-        onEachFeature: onEachFeature
-      });
-    } else if(style.type==="line"){
-      layer = L.geoJSON(data, {
-        style: function(f){ return {color:style.color, weight:style.weight||2}; },
-        onEachFeature: onEachFeature
-      });
-    } else { // polygon
-      layer = L.geoJSON(data, {
-        style: function(f){ return {color:style.color, fillColor:style.color, fillOpacity:0.4}; },
-        onEachFeature: onEachFeature
-      });
-    }
+          })
+        });
+      },
+      onEachFeature:onEachFeature
+    });
+  } else if(style.type==="marker"){ // Ocupación azul u obras rojas
+    let iconUrl = file.includes("Ocupación") ? "https://cdn-icons-png.flaticon.com/512/684/684908.png" :
+                  file.includes("Obras_sin_permiso") ? "https://cdn-icons-png.flaticon.com/512/484/484167.png" : "";
+    let icon = L.icon({iconUrl:iconUrl, iconSize:[20,20]});
+    layer = L.geoJSON(data,{pointToLayer: (f,latlng)=>L.marker(latlng,{icon:icon}), onEachFeature:onEachFeature});
+  } else if(style.type==="line-double"){ // vías doble línea
+    let l1 = L.geoJSON(data, {style:{color:style.color, weight:style.weight||3}, onEachFeature:onEachFeature});
+    let l2 = L.geoJSON(data, {style:{color:"#fff", weight:(style.weight||3)-1}});
+    layer = L.layerGroup([l1,l2]);
+  } else if(style.type==="line"){ // líneas normales
+    layer = L.geoJSON(data, {style:{color:style.color, weight:style.weight||2}, onEachFeature:onEachFeature});
+  } else { // polígonos
+    layer = L.geoJSON(data, {style:{color:style.color, fillColor:style.color, fillOpacity:0.4}, onEachFeature:onEachFeature});
+  }
 
+  return layer;
+}
+
+// 🔹 Cargar GeoJSON
+geojsonFiles.forEach(file=>{
+  fetch(file).then(r=>r.json()).then(data=>{
+    let layer = createLayer(file,data);
     layer.addTo(map);
-    overlays[file] = layer;
     layers[file] = layer;
 
-    // 🗂 Crear checkboxes en sidebar
+    // Checkbox en sidebar
     let lc = document.createElement('div');
     lc.innerHTML = `<input type="checkbox" id="${file}" checked> ${file}`;
     lc.querySelector('input').addEventListener('change', e=>{
@@ -148,21 +159,12 @@ geojsonFiles.forEach(file => {
       else map.removeLayer(layers[file]);
     });
     document.getElementById('layer-control').appendChild(lc);
-  }).catch(err=>console.log("Error "+file, err));
+  }).catch(err=>console.log("Error "+file,err));
 });
 
-// 🎯 Función para mostrar info
-function onEachFeature(feature, layer){
-  layer.on('click', function(){
-    let info = "<b>"+(feature.properties.nombre||"Elemento")+"</b><br>";
-    for(let key in feature.properties){ info += "<b>"+key+":</b> "+feature.properties[key]+"<br>"; }
-    document.getElementById('feature-info').innerHTML = info;
-  });
-}
-
 // 🏠 Botones
-document.getElementById('home-btn').onclick=()=>{ map.setView([6.740430,-74.730643],16); };
-document.getElementById('coords-btn').onclick=()=>{
+document.getElementById('home-btn').onclick = ()=>{ map.setView([6.740430,-74.730643],16); };
+document.getElementById('coords-btn').onclick = ()=>{
   map.once('click', e=>{ alert("Coordenadas:\nLat:"+e.latlng.lat+"\nLng:"+e.latlng.lng); });
   alert("Cliquea en el mapa para ver coordenadas.");
 };
