@@ -15,9 +15,10 @@ html, body { height:100%; margin:0; font-family:"Segoe UI", Arial, sans-serif; }
   padding:15px; overflow-y:auto; color:white; z-index:1000;
 }
 #sidebar img { display:block; margin:auto; width:110px; border-radius:8px; }
+#sidebar h2 { color:#00e676; text-align:center; margin-bottom:10px; }
 .section { background:#1b1b1b; padding:10px; border-radius:8px; margin-top:12px; }
 #map-container { margin-left:310px; height:100%; }
-.map-buttons { position:fixed; top:15px; right:15px; display:flex; flex-direction:column; gap:10px; z-index:1500;}
+.map-buttons { position:fixed; top:15px; right:15px; z-index:1500; }
 .map-btn { background:#2f2f2f; width:44px; height:44px; border-radius:50%; display:flex; justify-content:center; align-items:center; cursor:pointer; color:white; font-size:20px;}
 .map-btn:hover { background:#4a4a4a;}
 .legend { background:white; padding:8px; border-radius:8px; line-height:1.4; font-size:12px; }
@@ -36,26 +37,21 @@ html, body { height:100%; margin:0; font-family:"Segoe UI", Arial, sans-serif; }
 
   <div class="section" id="feature-info"><b>💡 Seleccione un elemento</b></div>
 
-  <div class="section" id="layer-control"><b>🗂 Capas</b><br>
-    <!-- Checkboxes generados automáticamente -->
-  </div>
+  <div class="section" id="layer-control"><b>🗂 Capas</b><br></div>
 </div>
 
 <div id="map-container"></div>
 
 <div class="map-buttons">
   <div class="map-btn" id="home-btn">🏠</div>
-  <div class="map-btn" id="coords-btn">📍</div>
-  <div class="map-btn" id="locate-btn">🧭</div>
 </div>
 
 <div id="legend" class="legend" style="position:fixed; bottom:10px; right:10px; z-index:1500;"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
 
 <script>
-// 🌎 Crear mapa centrado en coordenadas y zoom
+// 🌎 Crear mapa
 var map = L.map('map-container').setView([6.740430,-74.730643],16);
 
 // 🔹 Capas base
@@ -64,10 +60,10 @@ var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { at
 
 var baseMaps = { "Satélite (Google)": googleSat, "Calles (OSM)": osm };
 var overlays = {};
-L.control.layers(baseMaps, overlays, {collapsed:false, position:'topright'}).addTo(map);
+var layerControl = L.control.layers(baseMaps, overlays, {collapsed:false, position:'topright'}).addTo(map);
 
-// 🧭 Mi ubicación
-L.control.locate({position:'topright'}).addTo(map);
+// Bajamos el control para que no tape el botón
+document.querySelector('.leaflet-control-layers').style.top = '70px';
 
 // 📁 Archivos GeoJSON
 var geojsonFiles = [
@@ -82,12 +78,12 @@ var geojsonFiles = [
   "Vía.geojson"
 ];
 
-// Estilos y tipos de capa
+// Estilos y tipos
 var layerStyles = {
   "Concesión IH8-10541.geojson": {color:"#e41a1c", type:"polygon"},
   "Drenaje_Sencillo.geojson": {color:"#377eb8", type:"line", weight:2},
   "Frentes de explotación del proyecto Rico Mora.geojson": {color:"#4daf4a", type:"cross"},
-  "Infraestructura Existente.geojson": {color:"#984ea3", type:"polygon"},
+  "Infraestructura Existente.geojson": {color:"#ffff00", type:"marker", radius:5},
   "Obras_sin_permiso_cauce.geojson": {color:"red", type:"marker"},
   "Ocupación de Cauce.geojson": {color:"blue", type:"marker"},
   "Q. Malabrigo.geojson": {color:"#a65628", type:"polygon"},
@@ -97,23 +93,20 @@ var layerStyles = {
 
 var layers = {};
 
-// 🎨 Función de info
 function onEachFeature(feature, layer){
   layer.on('click', function(){
     let info = "<b>"+(feature.properties.nombre||"Elemento")+"</b><br>";
-    for(let key in feature.properties){
-      info += "<b>"+key+":</b> "+feature.properties[key]+"<br>";
-    }
+    for(let key in feature.properties){ info += "<b>"+key+":</b> "+feature.properties[key]+"<br>"; }
     document.getElementById('feature-info').innerHTML = info;
   });
 }
 
-// 🔹 Crear capa según tipo
+// Crear capa según tipo
 function createLayer(file, data){
   let style = layerStyles[file] || {color:"#000", type:"polygon"};
   let layer;
 
-  if(style.type==="cross"){ // X verde
+  if(style.type==="cross"){
     layer = L.geoJSON(data,{
       pointToLayer: function(f, latlng){
         return L.marker(latlng, {
@@ -126,32 +119,38 @@ function createLayer(file, data){
       },
       onEachFeature:onEachFeature
     });
-  } else if(style.type==="marker"){ // Ocupación azul u obras rojas
-    let iconUrl = file.includes("Ocupación") ? "https://cdn-icons-png.flaticon.com/512/684/684908.png" :
-                  file.includes("Obras_sin_permiso") ? "https://cdn-icons-png.flaticon.com/512/484/484167.png" : "";
-    let icon = L.icon({iconUrl:iconUrl, iconSize:[20,20]});
-    layer = L.geoJSON(data,{pointToLayer: (f,latlng)=>L.marker(latlng,{icon:icon}), onEachFeature:onEachFeature});
-  } else if(style.type==="line-double"){ // vías doble línea
+  } else if(style.type==="marker"){ // Ocupación, Obras o Infraestructura
+    let iconUrl = "";
+    if(file.includes("Ocupación")) iconUrl = "https://cdn-icons-png.flaticon.com/512/684/684908.png";
+    else if(file.includes("Obras_sin_permiso")) iconUrl = "https://cdn-icons-png.flaticon.com/512/484/484167.png";
+    layer = L.geoJSON(data,{
+      pointToLayer: function(f, latlng){
+        if(file==="Infraestructura Existente.geojson")
+          return L.circleMarker(latlng,{radius:style.radius,color:style.color,fillColor:style.color,fillOpacity:1,weight:1});
+        else
+          return L.marker(latlng,{icon:L.icon({iconUrl:iconUrl,iconSize:[20,20]})});
+      },
+      onEachFeature:onEachFeature
+    });
+  } else if(style.type==="line-double"){
     let l1 = L.geoJSON(data, {style:{color:style.color, weight:style.weight||3}, onEachFeature:onEachFeature});
     let l2 = L.geoJSON(data, {style:{color:"#fff", weight:(style.weight||3)-1}});
     layer = L.layerGroup([l1,l2]);
-  } else if(style.type==="line"){ // líneas normales
+  } else if(style.type==="line"){
     layer = L.geoJSON(data, {style:{color:style.color, weight:style.weight||2}, onEachFeature:onEachFeature});
-  } else { // polígonos
+  } else {
     layer = L.geoJSON(data, {style:{color:style.color, fillColor:style.color, fillOpacity:0.4}, onEachFeature:onEachFeature});
   }
 
   return layer;
 }
 
-// 🔹 Cargar GeoJSON
+// Cargar GeoJSON y crear checkboxes
 geojsonFiles.forEach(file=>{
   fetch(file).then(r=>r.json()).then(data=>{
-    let layer = createLayer(file,data);
-    layer.addTo(map);
+    let layer = createLayer(file,data).addTo(map);
     layers[file] = layer;
 
-    // Checkbox en sidebar
     let lc = document.createElement('div');
     lc.innerHTML = `<input type="checkbox" id="${file}" checked> ${file}`;
     lc.querySelector('input').addEventListener('change', e=>{
@@ -162,20 +161,17 @@ geojsonFiles.forEach(file=>{
   }).catch(err=>console.log("Error "+file,err));
 });
 
-// 🏠 Botones
+// Botón Home
 document.getElementById('home-btn').onclick = ()=>{ map.setView([6.740430,-74.730643],16); };
-document.getElementById('coords-btn').onclick = ()=>{
-  map.once('click', e=>{ alert("Coordenadas:\nLat:"+e.latlng.lat+"\nLng:"+e.latlng.lng); });
-  alert("Cliquea en el mapa para ver coordenadas.");
-};
 
-// ⚪ Leyenda
+// Leyenda
 var legend = document.getElementById('legend');
 legend.innerHTML = `
 <b>Leyenda</b><br>
 Frentes de explotación: X verde<br>
 Ocupación de Cauce: marcador azul<br>
 Obras sin permiso: marcador rojo<br>
+Infraestructura Existente: puntos amarillos<br>
 Fuentes hídricas: línea azul delgada<br>
 Vías: doble línea gris<br>
 Otros polígonos: color de capa
